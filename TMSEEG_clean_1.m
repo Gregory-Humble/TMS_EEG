@@ -1,7 +1,15 @@
+%% TMS EEG peak detection, peak deletion, remove unused channels and first clean of data
+
+%clears everything to start fresh and new   
 clear; close all; clc;
 
+%add the relevant paths for the script to run properly 
+addpath('E:\Alz_Clinical_Trial\Alz_Data_Analysis_10JAN20\TMSEEG');
+addpath('C:\Users\grego\Desktop\Data_Analysis_Scripts_and_Repositories\TMSEEG');
 eeglabpath= 'C:\Users\grego\Desktop\Matlab_EEGlab_Files\eeglab2019_1';
 cd(eeglabpath)
+
+%working directories of where the data are stored and will be kept
 workDir='E:\Alz_Clinical_Trial\Alz_Data_Analysis_10JAN20\'
 inPath = 'E:\Alz_Clinical_Trial\Alz_Data_Analysis_10JAN20\TMSEEG\TMSEEG_ALZ_data'; %where the data is
 outPath = 'E:\Alz_Clinical_Trial\Alz_Data_Analysis_10JAN20\TMSEEG\TMSEEG_ALZ_clean_1'; %'H:\TMSEEG_data\output\'; %where you want to save the data
@@ -9,9 +17,11 @@ outPath = 'E:\Alz_Clinical_Trial\Alz_Data_Analysis_10JAN20\TMSEEG\TMSEEG_ALZ_cle
 %SETTINGS and PATHS
 eeglab;
 ft_defaults;
-caploc = [eeglabpath,'\plugins\dipfit3.3\standard_BESA\standard-10-5-cap385.elp']; %path containing electrode positions
 
-% ID = {'301', '302'};
+%path containing electrode positions
+caploc = [eeglabpath,'\plugins\dipfit3.3\standard_BESA\standard-10-5-cap385.elp'];
+
+% List of ID's - ID = {'301', '302'};
 ID = {'301', '302'};
 
 % Sesh = {'BL','END'};
@@ -21,7 +31,7 @@ Sesh = {'BL', 'END'};
 Regions = {'leftpfc', 'rightpfc'};
 elec = {'F3', 'F4'};
 
-% regions of interest
+% region of interest
 roielec = 'FCZ';
 
 %% 
