@@ -1,26 +1,34 @@
+%clears everything to start fresh and new   
 clear; close all; clc;
-addpath 'C:\Users\grego\Desktop\Honours\eeglab_current\eeglab2019_1';
-eeglabpath = 'C:\Users\grego\Desktop\Honours\eeglab_current\eeglab2019_1';
+
+%add the relevant paths for the script to run properly 
+addpath('E:\Alz_Clinical_Trial\Alz_Data_Analysis_10JAN20\TMSEEG');
+addpath('C:\Users\grego\Desktop\Data_Analysis_Scripts_and_Repositories\TMSEEG');
+eeglabpath = 'C:\Users\grego\Desktop\Matlab_EEGlab_Files\eeglab2019_1';
+cd(eeglabpath);
+
+%SETTINGS and PATHS
 eeglab;
- %SETTINGS and PATHS
+ft_defaults;
 
-caploc = [eeglabpath,'\plugins\dipfit3.3\standard_BESA\standard-10-5-cap385.elp']; %path containing electrode positions
-%caploc='C:\Users\grego\Desktop\Honours\DataAnalysis2019\Scripts2019\standard-10-5-cap385.elp'; %path containing electrode positions
+%path containing electrode positions
+caploc = [eeglabpath,'\plugins\dipfit3.3\standard_BESA\standard-10-5-cap385.elp'];
 
+%location of data and where to save
 inPath = 'E:\Alz_Clinical_Trial\Alz_Data_Analysis_10JAN20\TMSEEG\TMSEEG_ALZ_clean_1'; %where the data is
 outPath = 'E:\Alz_Clinical_Trial\Alz_Data_Analysis_10JAN20\TMSEEG\TMSEEG_ALZ_clean_2'; %'H:\TMSEEG_data\output\'; %where you want to save the data
 
-% ID = {'301', '302'};
-ID = '301';
+% List of ID's - ID = {'301', '302'};
+ID = {'301', '302', '305', '306', '307', '308', '309', '310', '311', '312', '313', '314', '315', '316', '317', '318', '319', '320', '322', '324', '325', '326', '327', '328', '329', '330', '331', '333', '335', '336', '338', '341', '343', '345', '346', '347', '348', '349', '351'};
 
 % Sesh = {'BL','END'};
-Sesh = 'BL';
+Sesh = {'BL', 'END'};
 
 % Regions = {'leftpfc','rightpfc'};
-Regions = 'leftpfc';
+Regions = {'leftpfc', 'rightpfc'};
+elec = {'F3', 'F4'};
 
-%electrode/regions of interest 
-elec = 'F3';
+% region of interest
 roielec = 'FCZ';
 
 %change directory to in path
