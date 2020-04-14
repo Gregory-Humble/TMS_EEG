@@ -7,10 +7,10 @@ clear; close all; clc;
 addpath('E:\Alz_Clinical_Trial\Alz_Data_Analysis_10JAN20\TMSEEG');
 addpath('C:\Users\grego\Desktop\Data_Analysis_Scripts_and_Repositories\TMSEEG');
 eeglabpath = 'C:\Users\grego\Desktop\Matlab_EEGlab_Files\eeglab2019_1';
-cd(eeglabpath);
+cd('E:\Alz_Clinical_Trial\Alz_Data_Analysis_10JAN20\TMSEEG\TMSEEG_ALZ_data');
 
 %working directories of where the data are stored and will be kept
-workDir='E:\Alz_Clinical_Trial\Alz_Data_Analysis_10JAN20\';
+workDir = 'E:\Alz_Clinical_Trial\Alz_Data_Analysis_10JAN20\';
 inPath = 'E:\Alz_Clinical_Trial\Alz_Data_Analysis_10JAN20\TMSEEG\TMSEEG_ALZ_data'; %where the data is
 outPath = 'E:\Alz_Clinical_Trial\Alz_Data_Analysis_10JAN20\TMSEEG\TMSEEG_ALZ_clean_1'; %'H:\TMSEEG_data\output\'; %where you want to save the data
 
@@ -21,17 +21,20 @@ ft_defaults;
 %path containing electrode positions
 caploc = [eeglabpath,'\plugins\dipfit3.3\standard_BESA\standard-10-5-cap385.elp'];
 
-% List of ID's - ID = {'306', '307', '308', '309', '310', '311', '312', '313', '314', '315', '316', '317', '318', '319', '320', '322', '324', '325', '326', '327', '328', '329', '330', '331', '333', '335', '336', '338', '341', '343', '345', '346', '347', '348', '349', '351'};
-ID = {'305'};
+% List of ID's - ID = {'306', '307', '308', '309', '310', '311', '312',
+% '313', '314', '315', '316', '317', '318', '319', '320', '322', '324',
+% '325', '326', '327', '328', '329', '330', '331', '333', '335', '336',
+% '338', '341', '343', '345', '346', '347', '348', '349', '351'};
+ID = {'351'};
 
-% Sesh = {'BL','END'};
-Sesh = {'BL', 'END'};
+% Sesh = {'BL', 'END'};
+Sesh = {'END'};
 
-% Regions = {'leftpfc','rightpfc'};
+% Regions = {'leftpfc', 'rightpfc'};
 Regions = {'leftpfc', 'rightpfc'};
 
 % elec = {'F3', 'F4'};
-elec = {'F3', 'F4'};
+elec = {'FZ'};
 
 % region of interest
 roielec = 'FCZ';
@@ -45,24 +48,33 @@ for aaa = 1:length(ID);
         for a = 1:length(Regions); 
     
     % Load data
-    %EEG = pop_loadcnt([inPath, filesep, Regions{a} '_' Sesh{aa}, filesep ID{aaa} '_' Regions{a}, '_' Sesh{aa},  '.cnt'], 'dataformat', 'auto', 'memmapfile', '')
+    EEG = pop_loadcnt([inPath, filesep, Regions{a} '_' Sesh{aa}, filesep ID{aaa} '_' Regions{a}, '_' Sesh{aa},  '.cnt'], 'dataformat', 'auto', 'memmapfile', '')
     
     % a workaround when loading trimmed data that is saved as a set file
-    EEG = pop_loadset([inPath, filesep, Regions{a} '_' Sesh{aa}, filesep ID{aaa} '_' Regions{a}, '_' Sesh{aa},  '_CUT.set'])
-
+    %EEG = pop_loadset([inPath, filesep, Regions{a} '_' Sesh{aa}, filesep ID{aaa} '_' Regions{a}, '_' Sesh{aa},  '_CUT.set'])
+    
+    %deletes stored events
     EEG.event =[];
     EEG = eeg_checkset( EEG );
     
+    % The next two lines find where E1 is in the electrode list, and
+    % replaces E1 with SO1 (so that EEGLAB can allocate the correct
+    % location to the electrode)
+    E1_location = find(ismember({EEG.chanlocs.labels},'E1'));
+    EEG.chanlocs(1,E1_location).labels='SO1';
+    
     %Channel locations
     EEG = pop_chanedit(EEG, 'lookup', caploc); %caploc - channel information
-
+    EEG.allchan= EEG.chanlocs;
+    
     %Remove unused channels
     EEG.NoCh = {'FP1'; 'FPZ'; 'FP2'; 'FT7'; 'FT8'; 'T7'; 'T8'; 'TP7'; 'CP5'; 'CP3'; 'CP1'; 'CPZ'; 'CP2'; 'CP4'; 'CP6'; 'TP8'; 'PO7'; 'PO5'; 'PO6'; 'PO8'; 'CB1'; 'CB2'; 'E3'; 'HEOG'}; 
     EEG = pop_select(EEG,'nochannel',EEG.NoCh); 
     EEG.allchan=EEG.chanlocs; % copy of all the channels you have (saved as EEG.allchan)
 
-
-  EEG = tesa_findpulsepeak( EEG, elec(a), 'dtrnd', 'poly', 'thrshtype','dynamic', 'wpeaks', 'neg', 'plots', 'on', 'tmsLabel', '1');
+% find the TMS pulses - 'gui' is set on so you can manually select which
+% peaks to select.
+  EEG = tesa_findpulsepeak( EEG, elec, 'dtrnd', 'poly', 'thrshtype','median', 'wpeaks', 'gui', 'plots', 'on', 'tmsLabel', '1');
 %    EEG = tesa_findpulsepeak( EEG, elec, 'dtrnd', 'poly', 'thrshtype',10000, 'wpeaks', 'pos', 'plots', 'on', 'tmsLabel', '1');
 
 % Cut out TMS pulse ( -5 ms to +15 ms)
