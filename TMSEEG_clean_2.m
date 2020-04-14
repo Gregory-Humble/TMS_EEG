@@ -1,5 +1,8 @@
+%% TMSEEG second clean - ICA decomposition
 %clears everything to start fresh and new   
 clear; close all; clc;
+
+% Bad Data = 305_BL_rightpfc, 313_BL_leftpfc, 313_BL_rightpfc
 
 %add the relevant paths for the script to run properly 
 addpath('E:\Alz_Clinical_Trial\Alz_Data_Analysis_10JAN20\TMSEEG');
@@ -18,16 +21,18 @@ inPath = 'E:\Alz_Clinical_Trial\Alz_Data_Analysis_10JAN20\TMSEEG\TMSEEG_ALZ_clea
 outPath = 'E:\Alz_Clinical_Trial\Alz_Data_Analysis_10JAN20\TMSEEG\TMSEEG_ALZ_clean_2'; %'H:\TMSEEG_data\output\'; %where you want to save the data
 
 % List of ID's - ID = {'301', '302', '305', '306', '307', '308', '309', '310', '311', '312', '313', '314', '315', '316', '317', '318', '319', '320', '322', '324', '325', '326', '327', '328', '329', '330', '331', '333', '335', '336', '338', '341', '343', '345', '346', '347', '348', '349', '351'};
-ID = '351';
+ID = '311';
 
 % Sesh = {'BL','END'};
 Sesh = 'BL';
 
-% Regions = {'leftpfc','rightpfc'};
+%Regions = {'leftpfc'};
+%Regions = {'rightpfc'};
 Regions = {'leftpfc','rightpfc'};
 
 % electrode of interest for plotting butterfly plots
-% Elecofint = {'F3', 'F4'};
+%Elecofint = {'F3'};
+%Elecofint = {'F4'};
 Elecofint = {'F3', 'F4'};
 
 %change directory to in path
