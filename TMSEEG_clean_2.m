@@ -1,8 +1,10 @@
 %% TMSEEG second clean - ICA decomposition
 %clears everything to start fresh and new   
-clear; close all; clc;
+clear all; close all; clc;
 
-% Bad Data = 305_BL_rightpfc, 313_BL_leftpfc, 313_BL_rightpfc
+% Bad Data = 305_BL_rightpfc, 313_BL_leftpfc, 313_BL_rightpfc,
+% 331_BL_leftpfc, 331_BL_rightpfc, 341_BL_rightpfc, 348_BL_rightpfc,
+% 349_BL_leftpfc, 349_BL_rightpfc
 
 %add the relevant paths for the script to run properly 
 addpath('E:\Alz_Clinical_Trial\Alz_Data_Analysis_10JAN20\TMSEEG');
@@ -20,26 +22,60 @@ caploc = [eeglabpath,'\plugins\dipfit3.3\standard_BESA\standard-10-5-cap385.elp'
 inPath = 'E:\Alz_Clinical_Trial\Alz_Data_Analysis_10JAN20\TMSEEG\TMSEEG_ALZ_clean_1'; %where the data is
 outPath = 'E:\Alz_Clinical_Trial\Alz_Data_Analysis_10JAN20\TMSEEG\TMSEEG_ALZ_clean_2'; %'H:\TMSEEG_data\output\'; %where you want to save the data
 
-% List of ID's - ID = {'301', '302', '305', '306', '307', '308', '309', '310', '311', '312', '313', '314', '315', '316', '317', '318', '319', '320', '322', '324', '325', '326', '327', '328', '329', '330', '331', '333', '335', '336', '338', '341', '343', '345', '346', '347', '348', '349', '351'};
-ID = '311';
+%GUI to promt for answers to ID, Seshion and Regions of interest:
+prompt = {'Enter particpant IDs seperated by a space: (example 301 302 305)'};
+dlgtitle = 'Input';
+dims = [1 200];
+definput = {''};
+answer = inputdlg(prompt,dlgtitle,dims,definput);
+ID = strsplit(answer{1}, ' ');
 
-% Sesh = {'BL','END'};
-Sesh = 'BL';
+%% list gui for Sesh
+list = {'BL','END',};
+listselection = listdlg('ListString',list);
+if length(listselection) > 1
+    Sesh = {'BL', 'END'};
+elseif listselection == 1
+    Sesh = {'BL'};
+elseif listselection == 2
+    Sesh = {'END'};
+end
+
+%% list gui for Regions
+list = {'Left DLPFC','Right DLPFC',};
+listselection = listdlg('PromptString', {'Select region(s)'},'ListString',list);
+if length(listselection) > 1
+    Regions = {'leftpfc', 'rightpfc'};
+elseif listselection == 1
+    Regions = {'leftpfc'};
+elseif listselection == 2
+    Regions = {'rightpfc'};
+end
+
+% List of ID's - ID = {'301', '302', '305', '306', '307', '308', '309', '310', '311', '312', '313', '314', '315', '316', '317', '318', '319', '320', '322', '324', '325', '326', '327', '328', '329', '330', '331', '333', '335', '336', '338', '341', '343', '345', '346', '347', '348', '349', '351'};
+%ID = '341';
+
+%Sesh = 'BL';
+%Sesh = 'END';
+%Sesh = {'BL','END'};
+
 
 %Regions = {'leftpfc'};
 %Regions = {'rightpfc'};
-Regions = {'leftpfc','rightpfc'};
+%Regions = {'leftpfc','rightpfc'};
 
-% electrode of interest for plotting butterfly plots
+% electrode of interest for plotting butterfly plots -  NOT NEEDED AS CODED
+% TO CHANGE WITHIN LOOP IF NECESSARY
 %Elecofint = {'F3'};
 %Elecofint = {'F4'};
-Elecofint = {'F3', 'F4'};
+%Elecofint = {'F3', 'F4'};
 
 %change directory to in path
 cd(inPath);
-    
+for gg = 1:length(ID)    
 for ii = 1:length(Regions)
-EEG = pop_loadset('filename', [ID '_TMSEEG_' Sesh '_' Regions{ii} '_ds.set'], 'filepath', [inPath filesep Sesh filesep]);
+for hh = 1:length(Sesh)
+EEG = pop_loadset('filename', [ID{gg} '_TMSEEG_' Sesh{hh} '_' Regions{ii} '_ds.set'], 'filepath', [inPath filesep Sesh{hh} filesep]);
 % 301_TMSEEG_END_RDLPFC_
 %% Baseline correction to itself
     EEG = pop_rmbase( EEG, [-500 -50]); % Before the TMS pulse
@@ -73,7 +109,7 @@ end
 %%
 mkdir([outPath, filesep, Sesh, filesep]);
 
-EEG = pop_saveset(EEG, 'filename', [ID '_TMSEEG_' Sesh '_' Regions{ii} '_ds_ica1.set'], 'filepath', [outPath, filesep, Sesh, filesep]);
+EEG = pop_saveset(EEG, 'filename', [ID{gg} '_TMSEEG_' Sesh{hh} '_' Regions{ii} '_ds_ica1.set'], 'filepath', [outPath, filesep, Sesh{hh}, filesep]);
 % EEG = pop_loadset('filename', [ID '_TMSEEG_' Sesh '_' Regions '_ds_ica1.set'], 'filepath', [outPath filesep Sesh filesep]);
 
 % pop_plotdata(EEG, 0, [1:size(EEG.icawinv,2)],[1:EEG.trials],'Merged datasets ERP', 0, 1, [0 0]);
@@ -134,7 +170,7 @@ end
 %%
 
 %Save point
-EEG = pop_saveset(EEG, 'filename', [ID '_TMSEEG_' Sesh '_' Regions{ii} '_ds_ica1_filt_ica2.set'], 'filepath', [outPath filesep Sesh]);
+EEG = pop_saveset(EEG, 'filename', [ID{gg} '_TMSEEG_' Sesh{hh} '_' Regions{ii} '_ds_ica1_filt_ica2.set'], 'filepath', [outPath filesep Sesh{hh}]);
 % EEG = pop_loadset('filename', [ID '_TMSEEG_' Sesh '_ds_ica1_filt_ica2.set'], 'filepath', [outPath ID filesep]);
     
 % % TESA
@@ -157,7 +193,7 @@ EEG = tesa_compselect(EEG, 'blinkElecs', belecs , 'moveElecs', melecs, 'figSize'
 %%
 
 %Save point
-EEG = pop_saveset(EEG, 'filename', [ID '_TMSEEG_' Sesh '_' Regions{ii} '_ds_ica1_filt_ica2_clean.set'], 'filepath', [outPath filesep Sesh]);
+EEG = pop_saveset(EEG, 'filename', [ID{gg} '_TMSEEG_' Sesh{hh} '_' Regions{ii} '_ds_ica1_filt_ica2_clean.set'], 'filepath', [outPath filesep Sesh{hh}]);
 % EEG = pop_loadset('filename', [ID '_TMSEEG_' Sesh '_ds_ica1_filt_ica2_clean.set'], 'filepath', [outPath]);
 
 
@@ -190,13 +226,13 @@ EEG = pop_reref( EEG, []);
     EEG = pop_rmbase( EEG, [-500   -50]); % Before the TMS pulse
     EEG = eeg_checkset( EEG );
 
-EEG = pop_saveset(EEG, 'filename', [ID '_TMSEEG_' Sesh '_' Regions{ii} '_ds_ica1_filt_ica2_clean_reref.set'], 'filepath', [outPath filesep Sesh]);
+EEG = pop_saveset(EEG, 'filename', [ID{gg} '_TMSEEG_' Sesh{hh} '_' Regions{ii} '_ds_ica1_filt_ica2_clean_reref.set'], 'filepath', [outPath filesep Sesh{hh}]);
 
 % EEG = pop_loadset('filename', [ID '_TMSEEG_' Sesh '_ds_ica1_filt_ica2_clean_reref.set'], 'filepath', [outPath]);
 EEG = eeg_checkset( EEG );
 
 %% 
-EEG = pop_loadset('filename', [ID '_TMSEEG_' Sesh '_' Regions{ii} '_ds_ica1_filt_ica2_clean_reref.set'], 'filepath', [outPath filesep Sesh]);
+EEG = pop_loadset('filename', [ID{gg} '_TMSEEG_' Sesh{hh} '_' Regions{ii} '_ds_ica1_filt_ica2_clean_reref.set'], 'filepath', [outPath filesep Sesh{hh}]);
 
 % EEG_L = pop_loadset('filename', [ID '_TMSEEG_' Sesh '_LDLPFC_ds_ica1_filt_ica2_clean_reref.set'], 'filepath', [outPath]);
 % EEG_R = pop_loadset('filename', [ID '_TMSEEG_' Sesh '_RDLPFC_ds_ica1_filt_ica2_clean_reref.set'], 'filepath', [outPath filesep Sesh]);
@@ -209,8 +245,14 @@ EEG = pop_loadset('filename', [ID '_TMSEEG_' Sesh '_' Regions{ii} '_ds_ica1_filt
     
 %     
 % %% Indexing channel
+CurrentRegion = [Regions{ii}];
+if strcmp(CurrentRegion, 'rightpfc')
+    Elecofint = 'F4';
+elseif strcmp(CurrentRegion, 'leftpfc')
+        Elecofint = 'F3';
+end
     COI = {EEG.chanlocs.labels};  % channel of interest
-    IND = find(cellfun(@(x) strcmp(x, Elecofint{ii}), COI)); % giving it the number so you can just change setting to get whichever value
+    IND = find(cellfun(@(x) strcmp(x, Elecofint), COI)); % giving it the number so you can just change setting to get whichever value
     
     if strcmp(IND,[]);
     noregion = menu('Oops, the channel must''ve been removed! Please choose among these',COI);    
@@ -221,10 +263,12 @@ EEG = pop_loadset('filename', [ID '_TMSEEG_' Sesh '_' Regions{ii} '_ds_ica1_filt
     figure;
     plot(EEG.times(:,tp1:tp2), mean(EEG.data(:,tp1:tp2,:),3), 'b'); hold on;
     plot(EEG.times(:,tp1:tp2,:),mean(EEG.data(IND,tp1:tp2,:),3),'r', 'Linewidth',2);
-    title([ID, ' ' Regions{ii}, ' ' Sesh, ' TMSEEG butterfly plot'])
+    title([ID{gg}, ' ' Regions{ii}, ' ' Sesh{hh}, ' TMSEEG butterfly plot'])
     
     
 %     figure;
 %     plot(EEG_R.times(:,tp1:tp2), mean(EEG_R.data(:,tp1:tp2,:),3), 'b'); hold on;
 %     plot(EEG_R.times(:,tp1:tp2,:),mean(EEG_R.data(IND,tp1:tp2,:),3),'r', 'Linewidth',2);
 end 
+end
+end
